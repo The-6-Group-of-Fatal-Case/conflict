@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        canvas {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgb(173, 161, 161);
+        }
+        .pic{
+            position: absolute;
+            display: none;
+        }
+        img{
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+    <script>
+        window.onload = () => {
+            var pic = document.getElementsByClassName("pic")[0];
+            var canvas = document.getElementsByTagName("canvas")[0];
+            //获取画布工具
+            var kit = canvas.getContext("2d");
+
+            //X随机位置，Y随机位置
+            var xRandom = Math.floor(Math.random() * 30) * 20 +0.5;
+            var yRandom = Math.floor(Math.random() * 60) * 20 +0.5;
+            var foodEat = false;
+            
+            //蛇的默认位置
+            var snake = [
+                {x:2,y:0}, //头
+                {x:1,y:0}, //身
+                {x:0,y:0}, //尾
+            ];
+
+            //控制蛇的速度
+            var speed = 300;
+
+            //控制蛇的方向
+            var dirX = 1;
+            var dirY = 0;
+            var move = 37;
+            document.onkeydown = (ev) =>{
+                ev = ev || window.event;
+                switch(ev.keyCode){
+                    case 37:
+                        move !== 39 && (dirX = -1,dirY=0,move = ev.keyCode);
+                        break;
+                    case 38:
+                        move !== 40 && (dirY = -1,dirX= 0,move = ev.keyCode);
+                        break;
+                    case 39:
+                        move !== 37 && (dirX = 1,dirY=0,move = ev.keyCode);
+                        break;
+                    case 40:
+                        move !== 38 && (dirY = 1,dirX = 0,move = ev.keyCode);
+                        break;
+                };
+                
+            };
+
+            //分数
+            var score = 0;
+            
+            //从新绘画布
+            var timer = setInterval(() => {
+                //从新绘制
+                kit.clearRect(0, 0, 1200, 600);
+
+                //从新创建
+                for (var i = 1; i < 30; i++) {
+                    kit.moveTo(0, 20 * i + 0.5);
+                    kit.lineTo(1200, 20 * i + 0.5);
+                };
+
+                for (var i = 1; i < 60; i++) {
+                    kit.moveTo(20 * i + 0.5, 0);
+                    kit.lineTo(20 * i + 0.5, 600);
+                };
+
+                //地图网格白色
+                kit.strokeStyle = "white";
+
+                //画线
+                kit.stroke();
+
+                //食物颜色
+                kit.fillStyle = "tomato";
+
+                //创建食物
+                kit.fillRect(yRandom, xRandom, 20, 20);
+                if(snake[0].x *20 +0.5 == yRandom && snake[0].y *20+0.5 == xRandom){
+                    score ++;
+                    foodEat = true;
+                    snake[1].x +1;
+                }else{
+                    snake.pop();
+                    foodEat = false;
+                }
+
+                //蛇的新坐标
+                var oldHead = snake[0];
+                var newHead = {x:oldHead.x+dirX,y:oldHead.y+dirY,};
+                snake.unshift(newHead);
+
+                if(newHead.x > 59 || newHead.x < 0 || newHead.y > 29 || newHead.y < 0){
+                    score < 10 && (clearInterval(timer),alert(`曲佳明你才${score}分，太垃圾了,超过10分有小彩蛋，超过100分有终极彩蛋`),location.reload());
+                    (score > 1) && (score < 100) && (clearInterval(timer),pic.style.display = "block",alert(`曲佳明${score}分，还是很垃圾`,location.reload()));
+                     score > 100 && (clearInterval(timer),alert(`曲佳明${score}分，还是很垃圾`,location.reload()));
+                };
+
+                //创建蛇
+                for (var i = 0; i < snake.length; i++) {
+                    i === 0 ? kit.fillStyle = "black" : kit.fillStyle = "green";
+                    kit.fillRect(snake[i].x * 20 + 0.5, snake[i].y * 20 + 0.5, 20, 20);
+                };
+                
+                //食物被吃掉，创建随机坐标
+                foodEat && (
+                    xRandom = Math.floor(Math.random() * 30) * 20 + 0.5,
+                    yRandom = Math.floor(Math.random() * 60) * 20 + 0.5
+                );
+
+            },speed);
+
+           
+
+        };
+    </script>
+</head>
+
+<body style="background-color: #3c3c3c;">
+    <canvas height="600px" width="1200px"></canvas>
+    <div class="pic">
+        <img src="https://p2.pstatp.com/large/pgc-image/28ddd1e74fff4fd287d14fe3d5a92fc7" alt="">
+    </div>
+</body>
+
+</html>
